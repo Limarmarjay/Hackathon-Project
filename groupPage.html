@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Group Page</title>
+    <style>
+        #member-list {
+            margin-top: 20px;
+        }
+
+        .member {
+            padding: 10px;
+            margin-bottom: 5px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+
+        .money {
+            font-weight: bold;
+        }
+
+        #costs {
+            margin-top: 20px;
+        }
+
+        #add-cost-form {
+            margin-top: 20px;
+        }
+
+        #total-cost, #share-per-member {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+
+        #settle-up {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>My Group</h1>
+    <p id="current-user-info"></p>
+
+    <h2>Group Members:</h2>
+    <div id="member-list"></div>
+
+    <h2>Our Expenses:</h2>
+    <div id="costs"></div>
+
+    <button id="addCost">Add Expense</button>
+
+    <div id="add-cost-form" style="display:none;">
+        <input type="text" id="purchase-name" placeholder="Enter purchase name">
+        <input type="number" id="purchase-cost" placeholder="Enter purchase cost" step="0.01">
+        <button id="save-purchase">Save Purchase</button>
+    </div>
+
+    <h2>Group Share:</h2>
+    <div id="total-cost"></div>
+    <div id="share-per-member"></div>
+
+    <button id="settle-up">Settle Up</button>
+
+    <script>
+        const currentUser = localStorage.getItem("currentUser");
+        const users = localStorage.getItem("users");
+
+        const currentUserEmail = JSON.parse(users)[currentUser]?.email;
+
+        if (!currentUser || !currentUserEmail) {
+            alert("You must be logged in to view this page!");
+            window.location.href = 'index.html';
+        }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const groupCode = urlParams.get("groupCode");
+
+        const userGroups = JSON.parse(localStorage.getItem("userGroups"));
+        if (!userGroups || !userGroups[groupCode]) {
+            alert("Group not found!");
+            window.location.href = 'myGroups.html';
+        }
+
+        const groupData = userGroups[groupCode];
+        const groupName = groupData[0][1];
+
+        document.getElementById("current-user-info").textContent = `You are currently viewing ${groupName} and you paid $${groupData.reduce((sum, userInfo) => userInfo[0] === currentUserEmail ? sum + userInfo[2] : sum, 0)}`;
+
+        const memberListContainer = document.getElementById("member-list");
+        groupData.forEach(member => {
+            const memberElement = document.createElement("div");
+            memberElement.classList.add("member");
+            memberElement.innerHTML = `<p>${member[0]}</p>`;
+            memberListContainer.appendChild(memberElement);
+        });
+
+        
+        function calculateShare() {
+            let totalCost = 0;
+            groupData.forEach(member => {
+                totalCost += member[2]; 
+            });
+
+            const totalMembers = groupData.length;
+            const sharePerMember = totalCost / totalMembers;
+
+            document.getElementById("total-cost").textContent = `Total cost: $${totalCost.toFixed(2)}`;
+            document.getElementById("share-per-member").textContent = `Each member owes: $${sharePerMember.toFixed(2)}`;
+        }
+
+        calculateShare(); 
+
+        
+        document.getElementById("addCost").addEventListener("click", function() {
+            document.getElementById("add-cost-form").style.display = "block";
+        });
+
+        
+        document.getElementById("save-purchase").addEventListener("click", function() {
+            const purchaseName = document.getElementById("purchase-name").value;
+            const purchaseCost = parseFloat(document.getElementById("purchase-cost").value);
+
+            if (purchaseName && !isNaN(purchaseCost) && purchaseCost > 0) {
+                
+                groupData.forEach(member => {
+                    if (member[0] === currentUserEmail) {
+                        member[2] += purchaseCost; 
+                    }
+                });
+
+                
+                userGroups[groupCode] = groupData;
+                localStorage.setItem("userGroups", JSON.stringify(userGroups));
+
+                
+                const costsContainer = document.getElementById("costs");
+                const purchaseEntry = document.createElement("div");
+                purchaseEntry.classList.add("purchase");
+                purchaseEntry.innerHTML = `<p>${purchaseName} - $${purchaseCost.toFixed(2)} by ${currentUserEmail}</p>`;
+                costsContainer.appendChild(purchaseEntry);
+
+                
+                calculateShare();
+
+                
+                document.getElementById("add-cost-form").style.display = "none";
+                document.getElementById("purchase-name").value = "";
+                document.getElementById("purchase-cost").value = "";
+            } else {
+                alert("Please enter a valid purchase name and cost.");
+            }
+        });
+
+       
+        document.getElementById("settle-up").addEventListener("click", function() {
+            
+            let totalAmountToPay = 0;
+            groupData.forEach(member => {
+                totalAmountToPay += member[2]; 
+            });
+
+            alert(`Total amount to settle for the group: $${totalAmountToPay.toFixed(2)}`);
+
+            
+        });
+    </script>
+</body>
+</html>

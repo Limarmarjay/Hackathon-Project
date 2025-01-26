@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name = "viewpoint" content="width=device-width, initial-scale=1.0">
+    <title>Sign in and Sign up Form</title>
+    <link rel = "stylesheet" href = "style.css">
+    <script src="https://kit.fontawesome.com/66afec32c3.js" crossorigin="anonymous"></script>
+</head>
+<body>
+   <div class="container">
+        <div class="form-box">
+            <hl id="title" style="font-size: 30px">Sign up</hl>
+            <form>
+                <div class="input-group">
+                    <div class="input-field" id="nameField">
+                        <i class="fa-solid fa-user"></i>
+                        <input type = "name", placeholder = "Name", id = "name">
+                    </div>
+
+                    <div class="input-field">
+                        <i class="fa-solid fa-envelope"></i>
+                        <input type = "email", placeholder = "Email", id = "email">
+                    </div>
+
+                    <div class="input-field">
+                        <i class="fa-solid fa-unlock-keyhole"></i>
+                        <input type = "password", placeholder = "Password", id = "password">
+                    </div>
+                    <p>Lost password <a href="#">Click Here!</a></p>
+                </div>
+                <div class="btn-field">
+                    <button type="button" id = "signupBtn"> Sign up</button>
+                    <button type="button" id = "signinBtn" class="disable">Sign in</button>
+                </div>
+            </form>
+        </div>
+   </div>
+
+<script>
+    
+let signupBtn = document.getElementById("signupBtn");
+let signinBtn = document.getElementById("signinBtn");
+let nameField = document.getElementById("nameField");
+let title = document.getElementById("title");
+
+signinBtn.onclick = function(){
+    nameField.style.maxHeight = "0";
+    title.innerHTML = "Sign In";
+    signupBtn.classList.add("disable");
+    signinBtn.classList.remove("disable");
+    var enteredEmail = document.getElementById("email").value; 
+    var enteredPassword = document.getElementById("password").value;
+    
+    let userData = localStorage.getItem("users");
+
+    if (userData) {
+        
+        let parsedUserData = JSON.parse(userData);
+        console.log("LOG",parsedUserData[enteredEmail]);
+        username = parsedUserData[enteredEmail].name 
+        email = parsedUserData[enteredEmail].email
+        userPassword = parsedUserData[enteredEmail].password
+
+        // Check credntials
+        if (enteredPassword === parsedUserData[enteredEmail].password) {
+            console.log("Sign in successful!");
+            localStorage.setItem("currentUser", parsedUserData[enteredEmail].email); // Save as string maybe?
+
+            window.location.href = 'Group_home.html';
+            // ok link next page
+        } else {
+            console.log("Incorrect password.");
+            
+        }
+    } else {
+        console.log("Email not found.");
+        
+    }
+}
+
+signupBtn.onclick = function(){
+    nameField.style.maxHeight = "60px";
+    title.innerHTML = "Sign Up";
+    signupBtn.classList.remove("disable");
+    signinBtn.classList.add("disable");
+
+    var username = document.getElementById("name").value;
+    var userEmail = document.getElementById("email").value; 
+    var userPassword = document.getElementById("password").value; 
+
+    var userData = {
+    name: username,
+    password: userPassword, 
+    email: userEmail
+    
+    };
+
+    let users = {};
+    try {
+        users = JSON.parse(localStorage.getItem("users"));
+        console.log(users);
+        if (users === null) {
+            users = {};
+        }
+    } catch (e) {
+        users = {};
+    }
+    console.log("EMAIL:", users);
+    users[userEmail]= userData;
+
+    localStorage.setItem('users', JSON.stringify(users)); 
+    console.log("Username:", username);
+    console.log("Email:", userEmail);
+    console.log("password:", userPassword)
+
+}
+
+
+
+</script>
+</body>
+</html>

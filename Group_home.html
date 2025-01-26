@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Groups</title>
+    <link rel = "stylesheet" href = "grp_style.css">
+    <script src="https://kit.fontawesome.com/66afec32c3.js" crossorigin="anonymous"></script>
+    <style>
+        .fixed-element{
+            top: 10px;
+            right: 10px;
+            flex-direction: column;
+            align-items: center; 
+            justify-content: center;
+            position: fixed;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+        <button id="openUserInfo" type="button" class="user-button">
+            <i class="fa-solid fa-user"></i>
+        </button>
+    </div>
+
+  
+    <div class="userInfo" id="userInfo">
+        <div class="userInfo-inner">
+            <h2>User Information</h2>
+            <p id="userDetails"></p>
+            <button id="closeUserInfo">Close</button>
+        </div>
+    </div>
+
+    <script>
+        
+        const users = localStorage.getItem("users");
+        const currentUser = localStorage.getItem("currentUser");
+
+        
+        if (!currentUser) {
+            window.location.href = 'index.html';
+        }
+
+        
+        const parsedUserData = JSON.parse(users);
+        const name = parsedUserData[currentUser].name;
+        const email = parsedUserData[currentUser].email;
+
+        let emailData = JSON.parse(localStorage.getItem(email));
+
+
+    if (!emailData) {
+        emailData = [];  
+        localStorage.setItem(email, JSON.stringify(emailData)); 
+    }
+
+        
+        const openUserInfoBtn = document.getElementById("openUserInfo");
+        const closeUserInfoBtn = document.getElementById("closeUserInfo");
+        const userInfo = document.getElementById("userInfo");
+        const userDetails = document.getElementById("userDetails");
+
+        
+        openUserInfoBtn.addEventListener("click", () => {
+            userDetails.innerHTML = `
+                <p><strong>Name:</strong> ${name}</p>
+                <p><strong>Email:</strong> ${email}</p>
+            `;
+            userInfo.classList.add("open");
+        });
+
+        
+        closeUserInfoBtn.addEventListener("click", () => {
+            userInfo.classList.remove("open");
+        });
+
+        
+    </script>
+
+<button type="button" class="fixed-element" style="right: 0%;" onclick="logout()">
+    <i class="fa-solid fa-person-walking-dashed-line-arrow-right"></i>
+    Logout
+</button>
+        </button>
+        <script>
+            function logout() {
+                
+                localStorage.removeItem("currentUser");
+                localStorage.removeItem("currentUserGroup");
+                localStorage.removeItem("currentuserGroupCodes")
+        
+                
+                window.location.href = 'index.html';
+            }
+        </script>
+
+
+<div class="list-box">
+    <form>
+        <label for="groups" style="font-size: 20px">Select a group or click the plus icon to add new group</label>
+        <div class="add-group">
+            <button type="button" class="add-button" id="addGroupButton">
+                <i class="fa-solid fa-square-plus"></i>
+                Add group
+            </button>
+            <button type="button" class="apt">
+                <span class="button-icon1">
+                    <i class="fa-solid fa-building-user"></i>
+                </span>
+                <a href = "myGroups.html" style="color: black; text-underline-position: unset;">My Groups</a>
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+  
+    function generateRandomCode() {
+        return Math.floor(Math.random() * 1000000); 
+    }
+
+    
+    function createGroup(groupName) {
+        const randomCode = generateRandomCode();
+        emailData.push(randomCode)
+        localStorage.setItem(email, JSON.stringify(emailData));
+        
+        const groupData = {
+            groupName: groupName,
+            users: []
+        };
+
+        
+        
+
+        
+        let userGroups = JSON.parse(localStorage.getItem("userGroups")) || {};
+
+        
+        const currentUser = localStorage.getItem("currentUser");
+        const users = JSON.parse(localStorage.getItem("users"));
+        const currentUserEmail = users[currentUser]?.email;
+
+        if (currentUserEmail) {
+            
+            if (!userGroups[randomCode]) {
+                
+                userGroups[randomCode] = [[currentUserEmail, groupName, 0]]; 
+            } else {
+                
+                userGroups[randomCode].push([currentUserEmail, groupName, 0]);
+            }
+
+            
+            localStorage.setItem("userGroups", JSON.stringify(userGroups));
+
+            
+            let currentUserGroup = JSON.parse(localStorage.getItem("currentUserGroup")) || {};
+
+            
+            currentUserGroup[randomCode] = { groupName: groupName, money: 0 };
+
+            localStorage.setItem("currentUserGroup", JSON.stringify(currentUserGroup));
+        }
+
+        alert(`Group '${groupName}' created with code: ${randomCode}`);
+    }
+
+
+    function joinGroup(groupCode) {
+    const currentUser = localStorage.getItem("currentUser");
+    const users = localStorage.getItem("users");
+
+    if (!currentUser) {
+        alert("You must be logged in to join a group!");
+        return;
+    }
+
+    
+    const parsedUsers = JSON.parse(users);
+    const currentUserEmail = parsedUsers[currentUser]?.email; 
+    
+    if (!currentUserEmail) {
+        alert("User email not found!");
+        return;
+    }
+
+    
+    let emailData = JSON.parse(localStorage.getItem(currentUserEmail)) || [];
+    emailData.push(groupCode);
+    localStorage.setItem(currentUserEmail, JSON.stringify(emailData)); 
+
+    
+    const userGroups = JSON.parse(localStorage.getItem("userGroups")) || {};
+
+    
+    if (userGroups[groupCode]) {
+        const groupData = userGroups[groupCode];
+
+        
+        const groupName = groupData[0][1]; 
+        groupData.push([currentUserEmail, groupName, 0]);
+
+        
+        userGroups[groupCode] = groupData;
+        localStorage.setItem("userGroups", JSON.stringify(userGroups));
+
+        
+        const currentUserGroup = JSON.parse(localStorage.getItem("currentUserGroup")) || {};
+        currentUserGroup[groupCode] = { groupName: groupName, money: 0 }; 
+
+        localStorage.setItem("currentUserGroup", JSON.stringify(currentUserGroup));
+
+        alert(`You have successfully joined the group with code: ${groupCode}`);
+    } else {
+        alert("Group code not found!");
+    }
+}
+
+    
+    document.getElementById('addGroupButton').addEventListener('click', () => {
+        const action = prompt("Do you want to create a new group or join an existing one? Type 'create' or 'join'.");
+
+        if (action === "create") {
+            const groupName = prompt("Enter the name of the new group:");
+            if (groupName) {
+                createGroup(groupName); 
+            } else {
+                alert("Group name is required to create a group.");
+            }
+        } else if (action === "join") {
+            const groupCode = prompt("Enter the group code to join:");
+            if (groupCode) {
+                joinGroup(groupCode); 
+            } else {
+                alert("Group code is required to join a group.");
+            }
+        } else {
+            alert("Please type either 'create' or 'join'.");
+        }
+    });
+
+</script>
+
+</body>
+</html>
