@@ -7,9 +7,11 @@ var bodyParser = require("body-parser")
 var createClient = require("@supabase/supabase-js").createClient;
 var server = express();
 dotenv.config();
+var PORT = 3000;
 
 server.use(cors());
 server.use(bodyParser.json());
+server.use(express.json());
 
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 server.get("/", (req, res) => 
@@ -17,7 +19,6 @@ server.get("/", (req, res) =>
         res.send("Server is ready");
     });
 
-var PORT = 3000;
 server.listen(PORT, () => 
     {
         createClient();
@@ -61,3 +62,29 @@ server.post("/Log in", async(req, res) =>
 
 
     });
+
+// For Logout
+server.post("/log out", (req, res) =>
+    {
+        req.session.user = null;
+        res.clearCookie("connect.sid");
+        res.redirect("/login");
+    });
+
+// To add user
+async function addNewUser(username, password) 
+{
+    const {data, error} = await supabase.auth.signup({username, password});
+
+    if (error)
+        {
+            console.error("error", error.message);
+        }
+    else 
+    {
+        console.log("This user is registered", user);
+    }
+}
+
+
+
