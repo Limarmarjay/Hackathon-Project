@@ -5,6 +5,7 @@ app.use(express());
 const Recipient = require("mailersend").recipient;
 const EmailParams = require("mailersend").emailparams;
 const MailerSend = require("mailersend");
+// boolean isOwedMoney = debts.get(userId) > 0;
 
 const mailersend = new MailerSend(
     {
@@ -18,7 +19,7 @@ function sendEmail(recipientEmail)
     .setFrom("www.splittop.com")
     .setFromName("Splittop")
     .setRecipients(recipients)
-    if (someCondition) 
+    if (isOwedMoney) 
         {
             emailParams.setSubject("You are being owed by your roommate")
         }
