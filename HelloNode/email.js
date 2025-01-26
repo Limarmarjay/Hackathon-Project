@@ -25,8 +25,7 @@ function sendEmail(recipientEmail, toPay) {
     } else {
         emailParams.setSubject("You have no debt");
     }
-
-    emailParams.setHtml("<h1>You received this email from MailerSend</h1>")
+    emailParams.setHtml("<h1> You received this email from MailerSend </h1>")
         .setText("You received this email from MailerSend");
 
     mailersend.send(emailParams)
@@ -38,10 +37,10 @@ function sendEmail(recipientEmail, toPay) {
         });
 }
 
-app.post("/settle_now", (req, res) => {
+app.post("/Settle_now", (req, res) => {
     const { recipientEmail, toPay } = req.body;
     
-    if (!recipientEmail || typeof toPay === 'undefined') 
+    if (!recipientEmail || typeof toPay === "undefined") 
         {
             return res.status(400).json({ error: "Missing required fields (recipientEmail, toPay)" });
         }
@@ -51,8 +50,8 @@ app.post("/settle_now", (req, res) => {
 });
 
 // Start the server
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT;
 app.listen(PORT, () => 
     {
-        console.log(`Server is running on port ${PORT}`);
+        console.log("Server is running on port ${PORT}");
     });
