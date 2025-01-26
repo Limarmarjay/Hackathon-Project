@@ -18,4 +18,3 @@ function calculateAmount (userTransactions, totalTransactions, totalUsers){
     }
 }
 calculateAmount(userTransactions, totalTransactions, totalUsers);
-module.exports = toPay;
