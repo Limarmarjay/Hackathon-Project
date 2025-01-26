@@ -1,3 +1,4 @@
+var autoEmail = require("./HelloNode/email");
 const userTransactions = +10;
 const totalTransactions = 50;
 const totalUsers = 10;
@@ -16,5 +17,5 @@ function calculateAmount (userTransactions, totalTransactions, totalUsers){
         console.log("Everything is perfect");
     }
 }
-
 calculateAmount(userTransactions, totalTransactions, totalUsers);
+module.exports = toPay;
